@@ -25,7 +25,9 @@ exports.signup = (req, res) => {
 
   if (!valid) return res.status(400).json(errors);
 
-  const noImg = "no-img.png";
+  //const noImg = "no-img.png";
+  const noImg = "blank-profile-picture.webp";
+//https://firebasestorage.googleapis.com/v0/b/socialape-34e0f.appspot.com/o/blank-profile-picture.webp?alt=media&token=43db352a-6d12-4c6c-b291-7dcecb9aad19
 
   let token, userId;
   db.doc(`/users/${newUser.handle}`)
@@ -50,7 +52,8 @@ exports.signup = (req, res) => {
         email: newUser.email,
         createdAt: new Date().toISOString(),
         //TODO Append token to imageUrl. Work around just add token from image in storage.
-        imageUrl: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${noImg}?alt=media`,
+        //imageUrl: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${noImg}?alt=media`,
+        imageUrl: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${noImg}?alt=media&token=43db352a-6d12-4c6c-b291-7dcecb9aad19`,
         userId,
       };
       return db.doc(`/users/${newUser.handle}`).set(userCredentials);
