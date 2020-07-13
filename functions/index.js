@@ -49,16 +49,19 @@ exports.api = functions.region('asia-east2').https.onRequest(app);
 exports.createNotificationOnLike = functions
   .region('asia-east2')
   .firestore.document('likes/{id}')
-  .onCreate((snapshot) => {
+  .onCreate((snapshot, context) => {
+    functions.logger.log("snapshot.data():", snapshot.data());
     return db
       .doc(`/screams/${snapshot.data().screamId}`)
       .get()
       .then((doc) => {
+        functions.logger.log("doc.data():", doc.data());
         if (
           doc.exists &&
           doc.data().userHandle !== snapshot.data().userHandle
         ) {
-          return db.doc(`/notifications/${snapshot.id}`).set({
+          functions.logger.log("context.params.id + doc.id:", `${context.params.id} + ${doc.id}`);
+          return db.doc(`/notifications/${context.params.id}`).set({
             createdAt: new Date().toISOString(),
             recipient: doc.data().userHandle,
             sender: snapshot.data().userHandle,
@@ -73,9 +76,9 @@ exports.createNotificationOnLike = functions
 exports.deleteNotificationOnUnLike = functions
   .region('asia-east2')
   .firestore.document('likes/{id}')
-  .onDelete((snapshot) => {
+  .onDelete((snapshot, context) => {
     return db
-      .doc(`/notifications/${snapshot.id}`)
+      .doc(`/notifications/${context.params.id}`)
       .delete()
       .catch((err) => {
         console.error(err);
@@ -85,7 +88,7 @@ exports.deleteNotificationOnUnLike = functions
 exports.createNotificationOnComment = functions
   .region('asia-east2')
   .firestore.document('comments/{id}')
-  .onCreate((snapshot) => {
+  .onCreate((snapshot, context) => {
     return db
       .doc(`/screams/${snapshot.data().screamId}`)
       .get()
@@ -94,7 +97,7 @@ exports.createNotificationOnComment = functions
           doc.exists &&
           doc.data().userHandle !== snapshot.data().userHandle
         ) {
-          return db.doc(`/notifications/${snapshot.id}`).set({
+          return db.doc(`/notifications/${context.params.id}`).set({
             createdAt: new Date().toISOString(),
             recipient: doc.data().userHandle,
             sender: snapshot.data().userHandle,
